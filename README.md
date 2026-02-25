@@ -1,141 +1,119 @@
-# mcp-server-freee 🇯🇵
+# mcp-server-freee
 
-**日本初！freee会計向けMCPサーバー**
+[日本語](#日本語) | [English](#english)
 
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io) を通じて、AI Agentが[freee会計](https://www.freee.co.jp/)を直接操作できるようにするサーバーです。
+---
 
-Claude, GPT, Gemini, その他MCP対応のAI Agentから、freee会計の取引作成、請求書発行、試算表取得などが可能になります。
+## 日本語
 
-## 🚀 できること
+### freee会計 MCP Server
 
-| ツール | 説明 |
-|--------|------|
-| `freee_get_companies` | 事業所一覧の取得 |
-| `freee_get_deals` | 取引（収入・支出）一覧の取得 |
-| `freee_create_deal` | 取引の作成 |
-| `freee_get_account_items` | 勘定科目一覧の取得 |
-| `freee_get_partners` | 取引先一覧の取得 |
-| `freee_create_partner` | 取引先の作成 |
-| `freee_get_invoices` | 請求書一覧の取得 |
-| `freee_create_invoice` | 請求書の作成 |
-| `freee_get_walletables` | 口座一覧の取得 |
-| `freee_get_trial_balance` | 試算表（B/S）の取得 |
-| `freee_get_expense_applications` | 経費精算一覧の取得 |
-| `freee_get_sections` | 部門一覧の取得 |
-| `freee_create_manual_journal` | 振替伝票の作成 |
+**AI Agentがfreee会計を直接操作するための [Model Context Protocol (MCP)](https://modelcontextprotocol.io) サーバー**
 
-## 📦 インストール
+日本初のfreee会計向けMCPサーバーです。Claude、ChatGPT、その他のAI Agentからfreee会計APIを安全に呼び出せます。
+
+### 対応機能
+
+| カテゴリ | ツール | 説明 |
+|---------|--------|------|
+| 事業所 | `get_companies`, `get_company` | 事業所情報の取得 |
+| 取引 | `list_deals`, `create_deal`, `get_deal` | 収入・支出の管理 |
+| 請求書 | `list_invoices`, `create_invoice` | 請求書の作成・管理 |
+| 勘定科目 | `list_account_items` | 勘定科目一覧 |
+| 取引先 | `list_partners`, `create_partner` | 取引先の管理 |
+| 部門 | `list_sections` | 部門一覧 |
+| 品目 | `list_items` | 品目一覧 |
+| タグ | `list_tags` | メモタグ一覧 |
+| 仕訳 | `list_journals` | 仕訳帳のダウンロード |
+| 口座振替 | `list_transfers` | 振替一覧 |
+| 明細 | `list_wallet_txns` | 自動で経理の明細 |
+| 口座 | `list_walletables` | 口座一覧・残高 |
+| ユーザー | `list_users` | 事業所ユーザー一覧 |
+| 試算表 | `get_trial_balance` | 貸借対照表・損益計算書 |
+| 経費 | `list_expense_applications` | 経費申請一覧 |
+| 税区分 | `list_taxes` | 税区分コード一覧 |
+
+### セットアップ
+
+#### 1. freee APIアプリ作成
+
+1. [freee Developers](https://developer.freee.co.jp/) でアプリを作成
+2. OAuth 2.0でアクセストークンを取得
+
+#### 2. インストール
 
 ```bash
 npm install @aslink/mcp-server-freee
 ```
 
-または直接cloneして使用:
+または直接実行:
 
 ```bash
-git clone https://github.com/aslink-ai/mcp-server-freee.git
-cd mcp-server-freee
-npm install
+npx @aslink/mcp-server-freee
 ```
 
-## ⚙️ セットアップ
-
-### 1. freee APIアプリの作成
-
-1. [freee Developers](https://developer.freee.co.jp/) にアクセス
-2. 「アプリ管理」→「新規作成」
-3. リダイレクトURI: `urn:ietf:wg:oauth:2.0:oob`（CLIの場合）
-4. Client ID と Client Secret を取得
-
-### 2. アクセストークンの取得
-
-[freeeクイックスタートガイド](https://developer.freee.co.jp/startguide/getting-access-token)に従ってOAuth2認証を行い、アクセストークンを取得してください。
-
-### 3. 環境変数の設定
+#### 3. 環境変数
 
 ```bash
-export FREEE_ACCESS_TOKEN="your_access_token"
-export FREEE_REFRESH_TOKEN="your_refresh_token"  # 推奨
-export FREEE_CLIENT_ID="your_client_id"           # リフレッシュ用
-export FREEE_CLIENT_SECRET="your_client_secret"   # リフレッシュ用
+export FREEE_ACCESS_TOKEN="your_access_token_here"
 ```
 
-## 🔌 使い方
+#### 4. Claude Desktop設定
 
-### Claude Desktop / OpenClaw での設定
-
-`claude_desktop_config.json` または OpenClaw の設定に追加:
+`claude_desktop_config.json` に追加:
 
 ```json
 {
   "mcpServers": {
     "freee": {
-      "command": "node",
-      "args": ["/path/to/mcp-server-freee/src/index.js"],
+      "command": "npx",
+      "args": ["@aslink/mcp-server-freee"],
       "env": {
-        "FREEE_ACCESS_TOKEN": "your_token"
+        "FREEE_ACCESS_TOKEN": "your_access_token_here"
       }
     }
   }
 }
 ```
 
-### 直接起動
+### 使用例
 
-```bash
-FREEE_ACCESS_TOKEN=your_token node src/index.js
-```
+Claudeに話しかけるだけ:
 
-## 💡 使用例
+- 「今月の売上を教えて」
+- 「株式会社〇〇への請求書を作成して」
+- 「未決済の取引を一覧して」
+- 「試算表を見せて」
+- 「先月の経費申請を確認して」
 
-### AIに話しかけるだけ:
+### ライセンス
 
-```
-「今月の取引一覧を見せて」
-→ freee_get_deals を呼び出し、取引一覧を返します
-
-「田中商事に10万円の請求書を発行して」
-→ freee_create_partner + freee_create_invoice を連携実行
-
-「今期の試算表を確認して」
-→ freee_get_trial_balance で貸借対照表を取得
-
-「交通費3,200円を経費精算に追加して」
-→ freee_create_deal で支出取引を作成
-```
-
-## 🔒 セキュリティ
-
-- アクセストークンは環境変数で管理してください（コードに直書きしないこと）
-- 書き込み系ツール（`create_*`）はAI Agentの設定でHuman-in-the-Loopを推奨
-- 本番環境ではアクセス権限を最小限に設定してください
-
-## 🛠️ 開発
-
-```bash
-# 開発モード（ファイル変更時に自動再起動）
-npm run dev
-
-# テスト（coming soon）
-npm test
-```
-
-## 📄 ライセンス
-
-MIT License
-
-## 🏢 開発元
-
-**[AS LINK](https://aslink.co)** — 中小企業向けAIインフラ・ソリューションプロバイダー
-
-大阪を拠点に、オープンソースのAIツールで日本の中小企業のDXを支援しています。
-
-### 関連プロジェクト
-
-- [mcp-server-kintone](https://github.com/aslink-ai/mcp-server-kintone) (coming soon)
-- [mcp-server-moneyforward](https://github.com/aslink-ai/mcp-server-moneyforward) (coming soon)
-- [mcp-server-chatwork](https://github.com/aslink-ai/mcp-server-chatwork) (coming soon)
+MIT — [AS LINK](https://aslink.co)
 
 ---
 
-**⭐ このプロジェクトが役に立ったら、GitHubでスターをお願いします！**
+## English
+
+### freee Accounting MCP Server
+
+**[Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for AI Agents to interact with freee Accounting API**
+
+The first MCP server for freee — Japan's leading cloud accounting SaaS. Enables Claude, ChatGPT, and other AI agents to securely access freee accounting data.
+
+### Features
+
+- 20+ tools covering deals, invoices, partners, journals, trial balance, and more
+- Full read/write support for core accounting operations
+- Japanese-native — designed for Japanese business workflows
+- Secure — uses OAuth 2.0 access tokens, no credentials stored
+
+### Quick Start
+
+```bash
+export FREEE_ACCESS_TOKEN="your_token"
+npx @aslink/mcp-server-freee
+```
+
+### License
+
+MIT — [AS LINK](https://aslink.co)
